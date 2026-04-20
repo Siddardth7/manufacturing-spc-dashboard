@@ -6,23 +6,50 @@ st.set_page_config(
 )
 
 st.title("SPC Manufacturing Quality Dashboard")
-st.markdown(
-    "Statistical Process Control for composites and aerospace manufacturing. "
-    "Use the sidebar to navigate between dashboard pages."
+st.caption("A manufacturing-focused SPC portfolio app for composites, curing, and aerospace machining workflows.")
+
+intro_left, intro_right = st.columns([2, 1])
+
+with intro_left:
+    st.markdown(
+        """
+        This dashboard combines control charts, capability analysis, and a live disturbance simulator
+        into one Streamlit app. The goal is to make SPC behavior visible, not just numerically correct:
+        you can inspect real process streams, compare rule sets, and watch special-cause patterns emerge.
+        """
+    )
+
+with intro_right:
+    st.info(
+        "Use the sidebar to move between Control Charts, Process Capability, and Live Simulation."
+    )
+
+feature_cols = st.columns(3)
+feature_cols[0].subheader("Control Charts")
+feature_cols[0].write(
+    "Variables and attributes charts using Xbar-R, Xbar-S, I-MR, p, and u workflows with rule overlays."
+)
+feature_cols[1].subheader("Process Capability")
+feature_cols[1].write(
+    "Cp, Cpk, Pp, and Ppk metrics with histogram fit, gauge feedback, and Shapiro-Wilk normality checks."
+)
+feature_cols[2].subheader("Live Simulation")
+feature_cols[2].write(
+    "Real-time subgroup generation with mean shift, spike, and drift disturbances for SPC storytelling."
 )
 
-left, center, right = st.columns(3)
+st.subheader("Standards Context")
+standards_cols = st.columns(3)
+standards_cols[0].metric("AIAG SPC", "4th Edition")
+standards_cols[1].metric("Nelson Rules", "Rules 1-8")
+standards_cols[2].metric("Capability Target", "Cpk >= 1.33")
 
-with left:
-    st.subheader("Control Charts")
-    st.write("Explore variables and attributes chart workflows.")
+st.markdown(
+    """
+    **Reference areas**
 
-with center:
-    st.subheader("Process Capability")
-    st.write("Review capability indices and distribution views.")
-
-with right:
-    st.subheader("Live Simulation")
-    st.write("Preview real-time disturbance and rule-violation flows.")
-
-st.sidebar.success("Select a page above.")
+    - AIAG SPC constants and capability indices
+    - Western Electric and Nelson run rules
+    - Aerospace-oriented demo processes for layup, curing, and machining
+    """
+)
