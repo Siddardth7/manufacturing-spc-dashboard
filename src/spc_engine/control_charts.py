@@ -79,8 +79,75 @@ def compute_imr(values: list[float]) -> dict[str, float | list[float]]:
     }
 
 
+def compute_p(
+    defective_counts: list[float],
+    sample_sizes: list[float],
+) -> dict[str, float | list[float]]:
+    counts = np.asarray(defective_counts, dtype=float)
+    sizes = np.asarray(sample_sizes, dtype=float)
+    _validate_attribute_inputs(counts, sizes)
+
+    proportions = counts / sizes
+    pbar = float(counts.sum() / sizes.sum())
+    sigma = np.sqrt((pbar * (1.0 - pbar)) / sizes)
+
+    return {
+        "counts": counts.tolist(),
+        "sample_sizes": sizes.tolist(),
+        "proportions": proportions.tolist(),
+        "pbar": pbar,
+        "ucl": np.minimum(1.0, pbar + (3.0 * sigma)).tolist(),
+        "lcl": np.maximum(0.0, pbar - (3.0 * sigma)).tolist(),
+    }
+
+
+def compute_c(defect_counts: list[float]) -> dict[str, float | list[float]]:
+    counts = np.asarray(defect_counts, dtype=float)
+    if counts.ndim != 1 or counts.size == 0:
+        raise ValueError("c-chart requires at least one count.")
+
+    cbar = float(counts.mean())
+    sigma = np.sqrt(cbar)
+
+    return {
+        "counts": counts.tolist(),
+        "cbar": cbar,
+        "ucl": cbar + (3.0 * sigma),
+        "lcl": max(0.0, cbar - (3.0 * sigma)),
+    }
+
+
+def compute_u(
+    defect_counts: list[float],
+    sample_sizes: list[float],
+) -> dict[str, float | list[float]]:
+    counts = np.asarray(defect_counts, dtype=float)
+    sizes = np.asarray(sample_sizes, dtype=float)
+    _validate_attribute_inputs(counts, sizes)
+
+    u_values = counts / sizes
+    ubar = float(counts.sum() / sizes.sum())
+    sigma = np.sqrt(ubar / sizes)
+
+    return {
+        "counts": counts.tolist(),
+        "sample_sizes": sizes.tolist(),
+        "u_values": u_values.tolist(),
+        "ubar": ubar,
+        "ucl": np.maximum(0.0, ubar + (3.0 * sigma)).tolist(),
+        "lcl": np.maximum(0.0, ubar - (3.0 * sigma)).tolist(),
+    }
+
+
 def _validate_subgroups(subgroups: list[list[float]]) -> np.ndarray:
     subgroup_array = np.asarray(subgroups, dtype=float)
     if subgroup_array.ndim != 2 or subgroup_array.shape[0] == 0:
         raise ValueError("Control chart input must be a 2D subgroup array.")
     return subgroup_array
+
+
+def _validate_attribute_inputs(counts: np.ndarray, sizes: np.ndarray) -> None:
+    if counts.ndim != 1 or sizes.ndim != 1 or counts.size == 0 or counts.size != sizes.size:
+        raise ValueError("Attribute chart inputs must be matching 1D arrays.")
+    if np.any(sizes <= 0):
+        raise ValueError("Attribute chart sample sizes must be positive.")

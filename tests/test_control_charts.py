@@ -2,7 +2,14 @@ import math
 
 import pytest
 
-from src.spc_engine.control_charts import compute_imr, compute_xbar_r, compute_xbar_s
+from src.spc_engine.control_charts import (
+    compute_c,
+    compute_imr,
+    compute_p,
+    compute_u,
+    compute_xbar_r,
+    compute_xbar_s,
+)
 
 
 XBAR_R_SAMPLE = [
@@ -18,6 +25,11 @@ XBAR_S_SAMPLE = [
 ]
 
 IMR_SAMPLE = [10, 12, 11, 15, 14]
+P_COUNTS = [3, 5, 4]
+P_SAMPLE_SIZES = [100, 120, 80]
+C_COUNTS = [4, 7, 5, 6]
+U_COUNTS = [2, 4, 3]
+U_SAMPLE_SIZES = [1.0, 2.0, 1.5]
 
 
 def test_compute_xbar_r_returns_expected_keys():
@@ -136,3 +148,75 @@ def test_compute_imr_mr_limits_use_d4():
 def test_compute_imr_sigma_hat_uses_d2():
     result = compute_imr(IMR_SAMPLE)
     assert result["sigma_hat"] == pytest.approx(2.0 / 1.128, rel=1e-4)
+
+
+def test_compute_p_returns_expected_keys():
+    result = compute_p(P_COUNTS, P_SAMPLE_SIZES)
+    expected = {"counts", "sample_sizes", "proportions", "pbar", "ucl", "lcl"}
+    assert expected.issubset(result.keys())
+
+
+def test_compute_p_pbar():
+    result = compute_p(P_COUNTS, P_SAMPLE_SIZES)
+    assert result["pbar"] == pytest.approx(12.0 / 300.0, rel=1e-4)
+
+
+def test_compute_p_ucl_formula_uses_variable_n():
+    result = compute_p(P_COUNTS, P_SAMPLE_SIZES)
+    pbar = 12.0 / 300.0
+    expected = pbar + 3.0 * math.sqrt((pbar * (1.0 - pbar)) / 100.0)
+    assert result["ucl"][0] == pytest.approx(expected, rel=1e-4)
+
+
+def test_compute_p_lcl_clamped_to_zero():
+    result = compute_p(P_COUNTS, P_SAMPLE_SIZES)
+    assert result["lcl"][0] == pytest.approx(0.0)
+
+
+def test_compute_p_returns_point_proportions():
+    result = compute_p(P_COUNTS, P_SAMPLE_SIZES)
+    assert result["proportions"] == pytest.approx([0.03, 5 / 120, 0.05], rel=1e-4)
+
+
+def test_compute_c_returns_expected_keys():
+    result = compute_c(C_COUNTS)
+    expected = {"counts", "cbar", "ucl", "lcl"}
+    assert expected.issubset(result.keys())
+
+
+def test_compute_c_cbar():
+    result = compute_c(C_COUNTS)
+    assert result["cbar"] == pytest.approx(5.5)
+
+
+def test_compute_c_ucl_formula():
+    result = compute_c(C_COUNTS)
+    expected = 5.5 + 3.0 * math.sqrt(5.5)
+    assert result["ucl"] == pytest.approx(expected, rel=1e-4)
+
+
+def test_compute_c_lcl_clamped_to_zero():
+    result = compute_c(C_COUNTS)
+    assert result["lcl"] == pytest.approx(0.0)
+
+
+def test_compute_u_returns_expected_keys():
+    result = compute_u(U_COUNTS, U_SAMPLE_SIZES)
+    expected = {"counts", "sample_sizes", "u_values", "ubar", "ucl", "lcl"}
+    assert expected.issubset(result.keys())
+
+
+def test_compute_u_ubar():
+    result = compute_u(U_COUNTS, U_SAMPLE_SIZES)
+    assert result["ubar"] == pytest.approx(2.0)
+
+
+def test_compute_u_ucl_formula_uses_variable_n():
+    result = compute_u(U_COUNTS, U_SAMPLE_SIZES)
+    expected = 2.0 + 3.0 * math.sqrt(2.0 / 2.0)
+    assert result["ucl"][1] == pytest.approx(expected, rel=1e-4)
+
+
+def test_compute_u_lcl_clamped_to_zero():
+    result = compute_u(U_COUNTS, U_SAMPLE_SIZES)
+    assert result["lcl"][0] == pytest.approx(0.0)
