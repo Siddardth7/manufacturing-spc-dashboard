@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from src.spc_engine.capability import compute_capability, normality_test
 
@@ -90,3 +91,14 @@ def test_compute_capability_pp_none_for_unilateral_spec():
     result = compute_capability(DATA, lsl=None, usl=USL, sigma_hat=SIGMA_HAT)
     assert result["pp"] is None
     assert result["ppk"] is not None
+
+
+def test_compute_capability_no_spec_limits_all_indices_none():
+    data = np.array([10.0, 10.1, 9.9, 10.2, 10.0])
+    result = compute_capability(data, lsl=None, usl=None, sigma_hat=0.1)
+    assert result["cp"] is None
+    assert result["cpk"] is None
+    assert result["pp"] is None
+    assert result["ppk"] is None
+    assert result["mean"] == pytest.approx(data.mean(), rel=1e-4)
+    assert result["sigma_hat"] == pytest.approx(0.1)
