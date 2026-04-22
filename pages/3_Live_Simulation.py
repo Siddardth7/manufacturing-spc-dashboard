@@ -38,6 +38,8 @@ def current_chart(engine: SimulationEngine, rule_set: str):
 
     if engine.subgroup_size == 1:
         points = [group[0] for group in engine.history][-50:]
+        if len(points) < 2:
+            return None, [], 0.0, 0.0
         result = compute_imr(points)
         violations = detect_rule_violations(points, result["xbar"], result["sigma_hat"], rule_set)
         figure = build_control_chart(
