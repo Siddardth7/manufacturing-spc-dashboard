@@ -8,7 +8,7 @@
 
 A multi-page Streamlit application for **Statistical Process Control (SPC)** built around aerospace and composites manufacturing scenarios. The app makes classical SPC behaviour visible and interactive: you can inspect five real process streams, compare Western Electric and Nelson rule sets side by side, quantify capability against AIAG targets, and watch special-cause patterns emerge in a real-time disturbance simulator.
 
-**Live demo:** _Add Streamlit Cloud URL after deployment_
+**Live demo:** [manufacturing-spc-dashboard.streamlit.app](https://manufacturing-spc-dashboard-k8hyyj2fylnvjfrpcgqhyr.streamlit.app)
 **Repository:** [github.com/Siddardth7/manufacturing-spc-dashboard](https://github.com/Siddardth7/manufacturing-spc-dashboard)
 
 ---
