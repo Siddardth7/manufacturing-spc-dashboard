@@ -7,6 +7,8 @@ from typing import Sequence
 import numpy as np
 import plotly.graph_objects as go
 
+from src.ui.theme import AMBER, VIOLET, DANGER, TEXT_SECONDARY, PLOTLY_LAYOUT
+
 
 def build_control_chart(
     points: Sequence[float],
@@ -30,8 +32,8 @@ def build_control_chart(
             y=point_values,
             mode="lines+markers",
             name="Process",
-            line={"color": "#1f77b4", "width": 2},
-            marker={"size": 8, "color": "#1f77b4"},
+            line={"color": AMBER, "width": 2},
+            marker={"size": 8, "color": AMBER},
         )
     )
     figure.add_trace(_limit_trace(x_values, ucl_values, "UCL"))
@@ -42,7 +44,7 @@ def build_control_chart(
             y=cl_values,
             mode="lines",
             name="CL",
-            line={"color": "#f1c40f", "width": 2, "dash": "dot"},
+            line={"color": VIOLET, "width": 2, "dash": "dot"},
             hoverinfo="skip",
         )
     )
@@ -66,7 +68,7 @@ def build_control_chart(
                 marker={
                     "size": 13,
                     "color": "rgba(0,0,0,0)",
-                    "line": {"color": "#d62728", "width": 2},
+                    "line": {"color": DANGER, "width": 2},
                     "symbol": "circle-open",
                 },
                 hovertemplate="%{text}<extra></extra>",
@@ -78,8 +80,9 @@ def build_control_chart(
         title=title,
         xaxis_title="Subgroup",
         yaxis_title=y_axis_title,
-        template="plotly_white",
-        legend={"orientation": "h", "y": 1.08, "x": 0},
+        legend={"orientation": "h", "y": 1.08, "x": 0,
+                "bgcolor": "rgba(0,0,0,0)", "font": {"color": TEXT_SECONDARY}},
+        **{k: v for k, v in PLOTLY_LAYOUT.items() if k not in ("legend", "margin")},
         margin={"l": 40, "r": 20, "t": 60, "b": 40},
     )
     return figure
@@ -108,7 +111,7 @@ def build_capability_histogram(
             nbinsx=min(20, max(8, len(values) // 2)),
             histnorm="probability density",
             name="Data",
-            marker={"color": "#5dade2", "line": {"color": "white", "width": 1}},
+            marker={"color": AMBER, "line": {"color": "white", "width": 1}},
             opacity=0.8,
         )
     )
@@ -118,21 +121,21 @@ def build_capability_histogram(
             y=pdf,
             mode="lines",
             name="Normal Fit",
-            line={"color": "#2e4053", "width": 3},
+            line={"color": VIOLET, "width": 3},
         )
     )
 
     if lsl is not None:
-        figure.add_vline(x=lsl, line_color="#d62728", line_dash="dash", annotation_text="LSL")
+        figure.add_vline(x=lsl, line_color=DANGER, line_dash="dash", annotation_text="LSL")
     if usl is not None:
-        figure.add_vline(x=usl, line_color="#d62728", line_dash="dash", annotation_text="USL")
+        figure.add_vline(x=usl, line_color=DANGER, line_dash="dash", annotation_text="USL")
 
     figure.update_layout(
         title=title,
         xaxis_title="Measurement",
         yaxis_title="Density",
-        template="plotly_white",
         barmode="overlay",
+        **{k: v for k, v in PLOTLY_LAYOUT.items() if k not in ("margin",)},
         margin={"l": 40, "r": 20, "t": 60, "b": 40},
     )
     return figure
@@ -200,6 +203,6 @@ def _limit_trace(x_values: list[int], y_values: list[float], name: str) -> go.Sc
         y=y_values,
         mode="lines",
         name=name,
-        line={"color": "#d62728", "width": 2, "dash": "dash"},
+        line={"color": DANGER, "width": 2, "dash": "dash"},
         hoverinfo="skip",
     )
