@@ -1,5 +1,10 @@
 # SPC Manufacturing Quality Dashboard
 
+> **📦 ARCHIVED — moved to the [quality-platform](https://github.com/Siddardth7/quality-platform) monorepo.**
+> This app now lives at [`apps/spc/`](https://github.com/Siddardth7/quality-platform/tree/main/apps/spc)
+> with its full commit history preserved. This repo is kept for historical reference only;
+> active development continues in the monorepo.
+
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.50%2B-FF4B4B?logo=streamlit&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-83%20passing-brightgreen)
